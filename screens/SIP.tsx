@@ -1,11 +1,19 @@
-import { View, Text } from "react-native";
+import { View, Text, ScrollView, Animated } from "react-native";
 import React from "react";
+import { useYOffset } from "../Context/OffsetContext";
 
 const COLORS = ["#A77DD0", "#E793EB", "#E8CD09", "#63CB40"];
 
 const SIP = () => {
+  const yOffset = useYOffset();
   return (
-    <View style={{ padding: 12 }}>
+    <Animated.ScrollView
+      style={{ padding: 12, paddingTop: 55 }}
+      onScroll={Animated.event(
+        [{ nativeEvent: { contentOffset: { y: yOffset.current } } }],
+        { useNativeDriver: true }
+      )}
+    >
       <Text style={{ fontWeight: "700", fontSize: 18 }}>
         This is your regular SIP screen.
       </Text>
@@ -33,7 +41,7 @@ const SIP = () => {
           </Text>
         </View>
       ))}
-    </View>
+    </Animated.ScrollView>
   );
 };
 

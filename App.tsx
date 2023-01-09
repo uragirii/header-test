@@ -1,6 +1,6 @@
 import { StatusBar } from "expo-status-bar";
-import { useRef, useState } from "react";
-import { Animated, ScrollView } from "react-native";
+import { useState } from "react";
+import { useWindowDimensions } from "react-native";
 import { SafeAreaProvider } from "react-native-safe-area-context";
 import ScrollableHeader from "./components/ScrollableHeader";
 
@@ -8,37 +8,65 @@ import useCachedResources from "./hooks/useCachedResources";
 import useColorScheme from "./hooks/useColorScheme";
 import MutualFunds from "./screens/MutualFunds";
 import SIP from "./screens/SIP";
+import { SceneMap, TabView } from "react-native-tab-view";
+import { OffsetProvider } from "./Context/OffsetContext";
+
+const renderScene = SceneMap({
+  Explore: MutualFunds,
+  Holdings: MutualFunds,
+  Orders: MutualFunds,
+  SIPs: SIP,
+  Watchlist: MutualFunds,
+});
+
+const routes = [
+  { key: "Explore", title: "Explore" },
+  { key: "Holdings", title: "Holdings" },
+  { key: "Orders", title: "Orders" },
+  { key: "SIPs", title: "SIPs" },
+  { key: "Watchlist", title: "Watchlist" },
+];
+
+const TabNames = ["Explore", "Holdings", "Orders", "SIPs", "Watchlist"];
 
 export default function App() {
-  // this state maybe inside react-navigation
-  // or maybe just a context
-  const [screenSelected, setScreenSelected] = useState("Explore");
   const isLoadingComplete = useCachedResources();
   const colorScheme = useColorScheme();
-  const yOffset = useRef(new Animated.Value(0));
+
+  const [index, setIndex] = useState(0);
+  const { width } = useWindowDimensions();
 
   if (!isLoadingComplete) {
     return null;
   } else {
     return (
-      <SafeAreaProvider>
-        <StatusBar />
-        <Animated.ScrollView
+      <OffsetProvider>
+        <SafeAreaProvider>
+          <StatusBar />
+          {/* <Animated.ScrollView
           style={{ flex: 1, marginTop: 14 }}
           stickyHeaderIndices={[0]}
           onScroll={Animated.event(
             [{ nativeEvent: { contentOffset: { y: yOffset.current } } }],
             { useNativeDriver: true }
           )}
-        >
-          <ScrollableHeader
-            yOffset={yOffset}
-            selectedScreen={screenSelected}
-            setSelectedScreen={setScreenSelected}
+          contentContainerStyle={{ flexGrow: 1, flex: 1 }}
+        > */}
+          <TabView
+            renderScene={renderScene}
+            navigationState={{ index, routes }}
+            onIndexChange={setIndex}
+            renderTabBar={(props) => (
+              <ScrollableHeader
+                selectedScreen={TabNames[props.navigationState.index]}
+                setSelectedScreen={props.jumpTo}
+              />
+            )}
+            initialLayout={{ width }}
           />
-          {screenSelected === "SIPs" ? <SIP /> : <MutualFunds />}
-        </Animated.ScrollView>
-      </SafeAreaProvider>
+          {/* </Animated.ScrollView> */}
+        </SafeAreaProvider>
+      </OffsetProvider>
     );
   }
 }

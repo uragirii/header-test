@@ -1,5 +1,6 @@
-import { View, Text } from "react-native";
+import { View, Text, Animated } from "react-native";
 import React from "react";
+import { useYOffset } from "../Context/OffsetContext";
 
 const COLORS = [
   "#A77DD0",
@@ -11,8 +12,15 @@ const COLORS = [
 ];
 
 const MutualFunds = () => {
+  const yOffset = useYOffset();
   return (
-    <View style={{ padding: 12 }}>
+    <Animated.ScrollView
+      style={{ padding: 12, paddingTop: 55 }}
+      onScroll={Animated.event(
+        [{ nativeEvent: { contentOffset: { y: yOffset.current } } }],
+        { useNativeDriver: true }
+      )}
+    >
       <Text style={{ fontWeight: "700", fontSize: 18 }}>
         This is your regular mutual funds HOME screen.
       </Text>
@@ -40,7 +48,7 @@ const MutualFunds = () => {
           </Text>
         </View>
       ))}
-    </View>
+    </Animated.ScrollView>
   );
 };
 
